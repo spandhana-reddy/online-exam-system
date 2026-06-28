@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Initialize Exam</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f4f6f9; }
+        .navbar { background: #2c3e50; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; color: white; }
+        .navbar a { color: #ecf0f1; text-decoration: none; margin-left: 20px; }
+        .container { max-width: 500px; margin: 40px auto; padding: 30px; background: white; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        input { width: 100%; padding: 10px; margin: 10px 0 20px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #27ae60; border: none; color: white; font-size: 16px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h2>Examination Assembly</h2>
+        <a href="/admin/dashboard">Back to Control Panel</a>
+    </div>
+    <div class="container">
+        <h2>Create Exam Profile</h2>
+        <form action="/admin/create-exam" method="POST">
+            <label>Exam Name Title:</label>
+            <input type="text" name="exam_name" placeholder="e.g., Midterm Advanced Evaluation" required>
+            <label>Subject Classification:</label>
+            <input type="text" name="subject" placeholder="e.g., Computer Science" required>
+            <label>Duration Cap (In Minutes):</label>
+            <input type="number" name="duration" placeholder="e.g., 60" required>
+            <label>Total Value Marks:</label>
+            <input type="number" name="total_marks" placeholder="e.g., 100" required>
+            <button type="submit">Deploy Exam & Set Questions</button>
+        </form>
+    </div>
+</body>
+</html>

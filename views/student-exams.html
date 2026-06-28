@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Available Exams</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f4f6f9; }
+        .navbar { background: #343a40; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; color: white; }
+        .navbar a { color: #f8f9fa; text-decoration: none; margin-left: 20px; }
+        .container { max-width: 800px; margin: 40px auto; padding: 20px; }
+        .exam-card { background: white; padding: 20px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .exam-info h3 { margin: 0 0 5px 0; color: #007bff; }
+        .exam-info p { margin: 2px 0; color: #666; font-size: 14px; }
+        .btn-start { padding: 10px 20px; background: #007bff; color: white; border-radius: 4px; text-decoration: none; font-weight: bold; }
+        .btn-start:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h2>Available Examinations</h2>
+        <div>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/logout" style="color: #dc3545;">Logout</a>
+        </div>
+    </div>
+    <div class="container">
+        <h2>Active Exam Pool</h2>
+        <div id="exam-list">Loading exams from database...</div>
+    </div>
+
+    <script>
+        fetch('/student/exams/data')
+            .then(res => res.json())
+            .then(exams => {
+                const container = document.getElementById('exam-list');
+                if(exams.length === 0) {
+                    container.innerHTML = "<p>No examinations are currently active.</p>";
+                    return;
+                }
+                container.innerHTML = '';
+                exams.forEach(exam => {
+                    container.innerHTML += `
+                        <div class="exam-card">
+                            <div class="exam-info">
+                                <h3>${exam.exam_name}</h3>
+                                <p><strong>Subject:</strong> ${exam.subject}</p>
+                                <p><strong>Duration:</strong> ${exam.duration} Minutes | <strong>Total Marks:</strong> ${exam.total_marks}</p>
+                            </div>
+                            <div>
+                                <a href="/exam/${exam.exam_id}" class="btn-start">Sit for Exam</a>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+    </script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Examination Environment</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f4f6f9; }
+        .header-bar { background: #343a40; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 100; }
+        .container { max-width: 750px; margin: 30px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .timer-box { font-size: 18px; font-weight: bold; background: #dc3545; padding: 8px 15px; border-radius: 4px; }
+        .question-block { border-bottom: 1px solid #eee; padding: 20px 0; }
+        .question-text { font-size: 16px; font-weight: bold; margin-bottom: 12px; }
+        .option-label { display: block; margin: 8px 0; cursor: pointer; }
+        .text-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .btn-submit { display: block; width: 100%; margin-top: 30px; padding: 12px; background: #28a745; color: white; border: none; font-size: 18px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="header-bar">
+        <h2>Live Assessment Terminal</h2>
+        <div class="timer-box" id="timer">Time Remaining: --:--</div>
+    </div>
+    <div class="container">
+        <form id="exam-form">
+            <div id="questions-container">Loading assessment questions...</div>
+            <button type="submit" class="btn-submit">Submit Assessment Paper</button>
+        </form>
+    </div>
+
+    <script>
+        const pathParts = window.location.pathname.split('/');
+        const examId = pathParts[pathParts.length - 1];
+        let timerInterval;
+
+        // Fetch duration and start countdown
+        fetch(`/exam/${examId}/duration`)
+            .then(res => res.json())
+            .then(data => {
+                let timeRemaining = data.duration * 60;
+                const timerElement = document.getElementById('timer');
+                
+                timerInterval = setInterval(() => {
+                    let minutes = Math.floor(timeRemaining / 60);
+                    let seconds = timeRemaining % 60;
+                    timerElement.innerText = `Time Remaining: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    
+                    if (timeRemaining <= 0) {
+                        clearInterval(timerInterval);
+                        alert("Time's up! Submitting your answers automatically.");
+                        submitExam();
+                    }
+                    timeRemaining--;
+                }, 1000);
+            });
+
+        // Load Questions
+        fetch(`/exam/${examId}/questions`)
+            .then(res => res.json())
+            .then(questions => {
+                const container = document.getElementById('questions-container');
+                container.innerHTML = '';
+                
+                questions.forEach((q, idx) => {
+                    let html = `<div class="question-block">
+                        <p class="question-text">${idx + 1}. ${q.question_text}</p>`;
+                    
+                    if (q.question_type === "MCQ") {
+                        html += `
+                            <label class="option-label"><input type="radio" name="question_${q.question_id}" value="1"> ${q.option1}</label>
+                            <label class="option-label"><input type="radio" name="question_${q.question_id}" value="2"> ${q.option2}</label>
+                            <label class="option-label"><input type="radio" name="question_${q.question_id}" value="3"> ${q.option3}</label>
+                            <label class="option-label"><input type="radio" name="question_${q.question_id}" value="4"> ${q.option4}</label>
+                        `;
+                    } else {
+                        html += `<input type="text" class="text-input" name="question_${q.question_id}" placeholder="Type your subjective answer here...">`;
+                    }
+                    html += `</div>`;
+                    container.innerHTML += html;
+                });
+            });
+
+        function submitExam() {
+            clearInterval(timerInterval);
+            const form = document.getElementById('exam-form');
+            const formData = new FormData(form);
+            const answers = {};
+
+            for (let [key, value] of formData.entries()) {
+                const qId = key.replace('question_', '');
+                answers[qId] = value;
+            }
+
+            fetch(`/exam/${examId}/submit`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answers })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(`Exam submitted successfully! Your score: ${data.score}`);
+                window.location.href = '/dashboard';
+            })
+            .catch(err => {
+                console.error(err);
+                window.location.href = '/dashboard';
+            });
+        }
+
+        document.getElementById('exam-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (confirm("Are you sure you want to finalize and submit this exam paper?")) {
+                submitExam();
+            }
+        });
+        // ==========================================
+// PROCTORING & ANTI-CHEATING MODULE
+// ==========================================
+
+// Track warning counts before forcing a hard submission
+let cheatWarnings = 0;
+const MAX_ALLOWED_WARNINGS = 1; 
+
+function handleCheatingAttempt(reason) {
+    cheatWarnings++;
+    
+    if (cheatWarnings >= MAX_ALLOWED_WARNINGS) {
+        alert(`SECURITY VIOLATION: The exam is being submitted automatically because you ${reason}.`);
+        
+        // Target your existing submit button or call your submission function directly
+        // Assuming your form has id="examForm" or your submission function is submitExam()
+        const examForm = document.getElementById('examForm');
+        if (examForm) {
+            examForm.submit();
+        } else if (typeof submitExam === 'function') {
+            submitExam();
+        }
+    } else {
+        alert(`WARNING (${cheatWarnings}/${MAX_ALLOWED_WARNINGS}): You have switched away from the exam screen (${reason}). The next violation will result in an automatic, immediate submission!`);
+    }
+}
+
+// 1. Detect Tab Switching (Page Visibility API)
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        handleCheatingAttempt('switched tabs or minimized the browser');
+    }
+});
+
+// 2. Detect Window Focus Loss (e.g., clicking onto another app/monitor)
+window.addEventListener('blur', () => {
+    handleCheatingAttempt('clicked outside of the examination window');
+});
+    </script>
+</body>
+</html>

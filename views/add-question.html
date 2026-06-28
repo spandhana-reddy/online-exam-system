@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Populate Question Bank</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f4f6f9; }
+        .navbar { background: #2c3e50; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; color: white; }
+        .navbar a { color: #ecf0f1; text-decoration: none; margin-left: 20px; }
+        .container { max-width: 550px; margin: 30px auto; padding: 30px; background: white; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        input, select, textarea { width: 100%; padding: 10px; margin: 8px 0 18px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit; }
+        button { width: 100%; padding: 12px; background: #2980b9; border: none; color: white; font-size: 16px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h2>Question Records Population</h2>
+        <a href="/admin/dashboard">Back to Control Panel</a>
+    </div>
+    <div class="container">
+        <h2>Add Evaluation Question</h2>
+        <form action="/admin/add-question" method="POST">
+            <label>Target Parent Exam Module ID Reference:</label>
+            <input type="number" name="exam_id" placeholder="Provide the database ID number of the exam" required>
+            
+            <label>Question Type Structuring:</label>
+            <select name="question_type" id="q-type" onchange="toggleOptions()">
+                <option value="MCQ">Objective (Multiple Choice - MCQ)</option>
+                <option value="SUBJECTIVE">Subjective (Plain Text Input Evaluation)</option>
+            </select>
+
+            <label>Question Text Context Body:</label>
+            <textarea name="question_text" rows="3" placeholder="Type out your question parameter item text..." required></textarea>
+
+            <div id="mcq-options-block">
+                <label>Option Item Choices:</label>
+                <input type="text" name="option1" placeholder="Choice option value alternative 1">
+                <input type="text" name="option2" placeholder="Choice option value alternative 2">
+                <input type="text" name="option3" placeholder="Choice option value alternative 3">
+                <input type="text" name="option4" placeholder="Choice option value alternative 4">
+            </div>
+
+            <label>Target Explicit Correct Answer Key:</label>
+            <input type="text" name="correct_answer" placeholder="Type choice number (1-4) for MCQs, or specific correct string text for Subjective" required>
+
+            <button type="submit">Inject Question to Bank</button>
+        </form>
+    </div>
+
+    <script>
+        function toggleOptions() {
+            const block = document.getElementById('mcq-options-block');
+            block.style.display = document.getElementById('q-type').value === 'SUBJECTIVE' ? 'none' : 'block';
+        }
+    </script>
+</body>
+</html>

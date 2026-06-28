@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Purge Exams</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f4f6f9; }
+        .navbar { background: #2c3e50; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; color: white; }
+        .navbar a { color: #ecf0f1; text-decoration: none; margin-left: 20px; }
+        .container { max-width: 600px; margin: 40px auto; padding: 20px; }
+        .row-item { background: white; padding: 15px; margin-bottom: 10px; border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
+        .btn-del { background: #c0392b; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h2>Prune Module Matrices</h2>
+        <a href="/admin/dashboard">Back to Control Panel</a>
+    </div>
+    <div class="container">
+        <h2>Active Exam Pruning Panel</h2>
+        <div id="list">Checking reference nodes...</div>
+    </div>
+
+    <script>
+        function loadExams() {
+            fetch('/admin/delete-exam/data')
+                .then(res => res.json())
+                .then(exams => {
+                    const el = document.getElementById('list');
+                    if(exams.length === 0) { el.innerHTML = "<p>No modular database nodes registered.</p>"; return; }
+                    el.innerHTML = '';
+                    exams.forEach(x => {
+                        el.innerHTML += `<div class="row-item">
+                            <span><strong>ID [${x.exam_id}]:</strong> ${x.exam_name}</span>
+                            <button class="btn-del" onclick="wipe(${x.exam_id})">Wipe Profile</button>
+                        </div>`;
+                    });
+                });
+        }
+        function wipe(id) {
+            if(confirm("Confirm critical overwrite? This clears inherited student submission matrices natively!")){
+                fetch(`/admin/delete-exam/${id}`, { method:'POST' })
+                    .then(res => res.json())
+                    .then(d => { if(d.success) loadExams(); else alert("Process restricted."); });
+            }
+        }
+        loadExams();
+    </script>
+</body>
+</html>

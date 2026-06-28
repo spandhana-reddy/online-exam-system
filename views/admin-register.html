@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Provision Admin Credentials</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #2c3e50; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); width: 320px; }
+        h2 { margin-top: 0; color: #2c3e50; text-align: center; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #27ae60; border: none; color: white; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #218838; }
+        p { text-align: center; margin-top: 15px; font-size: 14px; }
+        a { color: #2980b9; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Admin Signup</h2>
+        <form action="/admin/register" method="POST">
+            <input type="text" name="username" placeholder="Choose Admin Username" required>
+            <input type="password" name="password" placeholder="Set Master Password" required>
+            <button type="submit">Create Admin Account</button>
+        </form>
+        <p>Already registered? <a href="/admin">Log in here</a></p>
+    </div>
+</body>
+</html>

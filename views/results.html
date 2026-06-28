@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Academic Grades</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f4f6f9; }
+        .navbar { background: #343a40; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; color: white; }
+        .navbar a { color: #f8f9fa; text-decoration: none; margin-left: 20px; }
+        .container { max-width: 800px; margin: 40px auto; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #28a745; color: white; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h2>Performance Records</h2>
+        <div>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/logout" style="color: #dc3545;">Logout</a>
+        </div>
+    </div>
+    <div class="container">
+        <h2>Your Historical Grades</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Exam Reference ID</th>
+                    <th>Acquired Marks Score</th>
+                    <th>Date & Time Submitted</th>
+                </tr>
+            </thead>
+            <tbody id="results-body">
+                <tr><td colspan="3">Retrieving your scores from the database connection...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        fetch('/student/results/data')
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.getElementById('results-body');
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3">No historical exam transcripts found under this account.</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = '';
+                data.forEach(row => {
+                    const date = new Date(row.submitted_at).toLocaleString();
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>Exam Module #${row.exam_id}</strong></td>
+                            <td style="font-weight:bold; color:#28a745;">${row.score} Marks</td>
+                            <td>${date}</td>
+                        </tr>
+                    `;
+                });
+            });
+    </script>
+</body>
+</html>

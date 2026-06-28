@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Global Analytics Transcripts</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f4f6f9; }
+        .navbar { background: #2c3e50; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; color: white; }
+        .navbar a { color: #ecf0f1; text-decoration: none; margin-left: 20px; }
+        .container { max-width: 900px; margin: 40px auto; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #34495e; color: white; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h2>Gradebook Diagnostics</h2>
+        <a href="/admin/dashboard">Back to Control Panel</a>
+    </div>
+    <div class="container">
+        <h2>Global Student Evaluation Logs</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Exam Title</th>
+                    <th>Acquired Marks</th>
+                    <th>Date Time Stamp</th>
+                </tr>
+            </thead>
+            <tbody id="admin-results-body">
+                <tr><td colspan="4">Mapping master database matrices...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        fetch('/admin/results/data')
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.getElementById('admin-results-body');
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4">No student submission records tracked in database.</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = '';
+                data.forEach(row => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${row.name}</strong></td>
+                            <td>${row.exam_name}</td>
+                            <td style="font-weight:bold; color:#d35400;">${row.score} Marks</td>
+                            <td>${new Date(row.submitted_at).toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+            });
+    </script>
+</body>
+</html>
